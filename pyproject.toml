@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "victoria-receptionist"
+version = "0.1.0"
+description = "Virtual receptionist for albrightlab.com — Triton-backed with RAG, web-search fallback, and GitHub-issue knowledge-gap filing."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+authors = [
+    { name = "Albright Laboratories", email = "coreymalbright@gmail.com" },
+]
+keywords = ["receptionist", "rag", "triton", "fastapi", "albrightlab"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "httpx>=0.28",
+    "asyncpg>=0.30",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.7",
+    "tavily-python>=0.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+]
+
+[project.urls]
+Homepage = "https://albrightlab.com"
+Repository = "https://github.com/AlbrightLaboratories/victoria-receptionist"
+Issues = "https://github.com/AlbrightLaboratories/victoria-receptionist/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["victoria*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]

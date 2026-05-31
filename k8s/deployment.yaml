@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: victoria
+  namespace: victoria
+  labels:
+    app: victoria
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: victoria
+  template:
+    metadata:
+      labels:
+        app: victoria
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+        - name: victoria
+          image: ghcr.io/albrightlaboratories/victoria-receptionist:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: MODE
+              value: production
+            - name: PORT
+              value: "8080"
+            - name: LOG_LEVEL
+              value: info
+            - name: TRITON_URL
+              value: http://triton-inference.triton-inference.svc.cluster.local:8000
+            - name: TRITON_OPENAI_COMPAT
+              value: "true"
+            - name: LLM_MODEL
+              valueFrom:
+                configMapKeyRef:
+                  name: victoria-config
+                  key: llm_model
+                  optional: true
+            - name: EMBEDDING_URL
+              value: http://nemo-embedding.triton-inference.svc.cluster.local:8000
+            - name: SEARXNG_URL
+              value: http://searxng.search.svc.cluster.local:8080
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: victoria-secrets
+                  key: database_url
+            - name: TAVILY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: victoria-secrets
+                  key: tavily_api_key
+                  optional: true
+            - name: GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: victoria-secrets
+                  key: gh_token
+            - name: GH_REPO
+              value: AlbrightLaboratories/albrightlaboratories-dot-com
+            - name: ALLOWED_ORIGINS
+              value: "https://albrightlab.com,https://www.albrightlab.com"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      imagePullSecrets:
+        - name: ghcr-pull
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: victoria-config
+  namespace: victoria
+data:
+  llm_model: "llama3.1:8b-instruct"

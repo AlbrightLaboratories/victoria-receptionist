@@ -1,0 +1,19 @@
+# Victoria Albright runtime dependencies.
+# Pinned to recent-stable versions; bump in lockstep when CI passes.
+
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+httpx==0.28.1
+asyncpg==0.30.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# Optional but listed so `pip install -r` produces a working dev shell.
+# tavily client is straightforward enough that we call its REST directly,
+# but include the SDK for users who prefer it.
+tavily-python==0.5.1
+
+# Test/dev — installed in the CI image too because the smoke test runs
+# inside the same container build.
+pytest==8.3.4
+pytest-asyncio==0.25.0

@@ -1,0 +1,44 @@
+# Local development stack — Victoria + Postgres+pgvector.
+#
+#   docker compose up --build
+#
+# Defaults to MODE=local so the mock LLM is used. Override with a `.env`
+# file or `-e MODE=staging` to point at a live Triton.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: victoria
+      POSTGRES_PASSWORD: victoria
+      POSTGRES_DB: victoria
+    ports:
+      - "5432:5432"
+    volumes:
+      - victoria-pg-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "victoria", "-d", "victoria"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MODE: local
+      DATABASE_URL: postgresql://victoria:victoria@postgres:5432/victoria
+      ALLOWED_ORIGINS: "http://localhost:8080,http://127.0.0.1:8080"
+      LOG_LEVEL: info
+    ports:
+      - "8080:8080"
+
+volumes:
+  victoria-pg-data:

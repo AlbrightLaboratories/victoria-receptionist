@@ -1,0 +1,103 @@
+# Postgres + pgvector statefulset for Victoria.
+#
+# Single replica — Victoria's workload is small and the conversation +
+# RAG data lives on a 10Gi PVC. If you need HA, swap this for the
+# CloudNativePG operator pattern used by the other org repos.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: victoria
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: pgvector/pgvector:pg16
+          ports:
+            - name: pg
+              containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: victoria-secrets
+                  key: postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: victoria-secrets
+                  key: postgres_password
+            - name: POSTGRES_DB
+              value: victoria
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "victoria"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+      volumes:
+        - name: init
+          configMap:
+            name: victoria-schema
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: victoria
+spec:
+  type: ClusterIP
+  clusterIP: None  # headless for the statefulset
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: pg
+---
+# ConfigMap-mounted schema. `kubectl create configmap victoria-schema
+# --from-file=schema.sql=schema.sql -n victoria` if you'd rather not
+# embed it here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: victoria-schema
+  namespace: victoria
+data:
+  schema.sql: |
+    -- Replace with `kubectl create configmap victoria-schema
+    -- --from-file=schema.sql --dry-run=client -o yaml | kubectl apply -f -`
+    -- to load the canonical schema.sql from the repo. This placeholder
+    -- is here so `kubectl apply -f k8s/` does not fail on first run.
+    CREATE EXTENSION IF NOT EXISTS vector;

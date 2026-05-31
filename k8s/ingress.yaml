@@ -1,0 +1,26 @@
+# Cloudflare-tunnel ingress for victoria.albrightlab.com.
+#
+# The cluster runs a cloudflared sidecar in the `cloudflare` namespace
+# that resolves *.albrightlab.com → Service in this manifest. The
+# annotation hints below are what cloudflare-operator looks for.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: victoria
+  namespace: victoria
+  annotations:
+    cloudflare.com/tunnel: "true"
+    cloudflare.com/hostname: victoria.albrightlab.com
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+    - host: victoria.albrightlab.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: victoria
+                port:
+                  number: 80

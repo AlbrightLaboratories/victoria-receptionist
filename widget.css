@@ -1,0 +1,206 @@
+/* Victoria Albright widget — dark theme matching albrightlab.com */
+
+.victoria-root {
+  position: fixed;
+  z-index: 2147483000;
+  bottom: 20px;
+  right: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #f5f5f5;
+}
+
+/* Floating action button */
+.victoria-bubble {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f6cff 0%, #5b8def 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 22px;
+  border: 0;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(15, 108, 255, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 120ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.victoria-bubble:hover {
+  transform: scale(1.06);
+}
+.victoria-bubble:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Chat panel */
+.victoria-panel {
+  position: absolute;
+  right: 0;
+  bottom: 70px;
+  width: 360px;
+  max-width: calc(100vw - 40px);
+  height: 520px;
+  max-height: calc(100vh - 100px);
+  background: #161821;
+  border: 1px solid #2a2d3a;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+.victoria-panel.victoria-open {
+  display: flex;
+}
+
+.victoria-header {
+  background: #1c1f2c;
+  border-bottom: 1px solid #2a2d3a;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.victoria-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.victoria-title strong {
+  font-size: 15px;
+  color: #fff;
+}
+.victoria-subtitle {
+  font-size: 11px;
+  color: #8b8fa3;
+  margin-top: 2px;
+}
+.victoria-close {
+  background: transparent;
+  border: 0;
+  color: #8b8fa3;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.victoria-close:hover {
+  background: #2a2d3a;
+  color: #fff;
+}
+
+.victoria-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3d4a #161821;
+}
+.victoria-log::-webkit-scrollbar {
+  width: 6px;
+}
+.victoria-log::-webkit-scrollbar-thumb {
+  background: #3a3d4a;
+  border-radius: 3px;
+}
+
+.victoria-msg {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.victoria-msg-user {
+  align-self: flex-end;
+  background: #0f6cff;
+  color: #fff;
+}
+.victoria-msg-assistant {
+  align-self: flex-start;
+  background: #232636;
+  color: #e8e9ef;
+}
+.victoria-typing {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.victoria-citations {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.victoria-citations a {
+  font-size: 11px;
+  color: #8b8fa3;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.victoria-citations a:hover {
+  color: #bcbfd0;
+}
+
+.victoria-input-row {
+  border-top: 1px solid #2a2d3a;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  background: #1c1f2c;
+}
+.victoria-input {
+  flex: 1;
+  resize: none;
+  background: #232636;
+  border: 1px solid #2a2d3a;
+  border-radius: 8px;
+  color: #f5f5f5;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+}
+.victoria-input:focus {
+  border-color: #5b8def;
+}
+.victoria-send {
+  background: #0f6cff;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+.victoria-send:hover:not(:disabled) {
+  background: #2c7eff;
+}
+.victoria-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .victoria-root {
+    bottom: 12px;
+    right: 12px;
+  }
+  .victoria-panel {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 100px);
+  }
+}
